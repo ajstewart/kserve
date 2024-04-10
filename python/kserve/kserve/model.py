@@ -154,7 +154,10 @@ class Model:
                 if inspect.iscoroutinefunction(self.preprocess)
                 else await asyncio.get_running_loop().run_in_executor(
                     None,
-                    self.preprocess(body, headers))
+                    self.preprocess,
+                    body,
+                    headers,
+                )
             )
             preprocess_ms = get_latency_ms(start, time.time())
         payload = self.validate(payload)
@@ -166,7 +169,10 @@ class Model:
                     if inspect.iscoroutinefunction(self.explain)
                     else await asyncio.get_running_loop().run_in_executor(
                         None,
-                        self.explain(payload, headers))
+                        self.explain,
+                        payload,
+                        headers,
+                    )
                 )
                 explain_ms = get_latency_ms(start, time.time())
         elif verb == InferenceVerb.PREDICT:
@@ -177,7 +183,10 @@ class Model:
                     if inspect.iscoroutinefunction(self.predict)
                     else await asyncio.get_running_loop().run_in_executor(
                         None,
-                        self.predict(payload, headers))
+                        self.predict,
+                        payload,
+                        headers,
+                    )
                 )
                 predict_ms = get_latency_ms(start, time.time())
         else:
@@ -190,7 +199,10 @@ class Model:
                 if inspect.iscoroutinefunction(self.postprocess)
                 else await asyncio.get_running_loop().run_in_executor(
                     None,
-                    self.postprocess(response, headers))
+                    self.postprocess,
+                    response,
+                    headers,
+                )
             )
             postprocess_ms = get_latency_ms(start, time.time())
 
