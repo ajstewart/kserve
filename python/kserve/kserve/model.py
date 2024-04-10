@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import asyncio
 import inspect
 import time
 from enum import Enum
@@ -151,7 +152,8 @@ class Model:
             payload = (
                 await self.preprocess(body, headers)
                 if inspect.iscoroutinefunction(self.preprocess)
-                else self.preprocess(body, headers)
+                else await asyncio.get_running_loop().run_in_executor(
+                    self.preprocess(body, headers))
             )
             preprocess_ms = get_latency_ms(start, time.time())
         payload = self.validate(payload)
@@ -161,7 +163,8 @@ class Model:
                 response = (
                     (await self.explain(payload, headers))
                     if inspect.iscoroutinefunction(self.explain)
-                    else self.explain(payload, headers)
+                    else await asyncio.get_running_loop().run_in_executor(
+                        self.explain(payload, headers))
                 )
                 explain_ms = get_latency_ms(start, time.time())
         elif verb == InferenceVerb.PREDICT:
@@ -170,7 +173,8 @@ class Model:
                 response = (
                     (await self.predict(payload, headers))
                     if inspect.iscoroutinefunction(self.predict)
-                    else self.predict(payload, headers)
+                    else await asyncio.get_running_loop().run_in_executor(
+                        self.predict(payload, headers))
                 )
                 predict_ms = get_latency_ms(start, time.time())
         else:
@@ -181,7 +185,8 @@ class Model:
             response = (
                 await self.postprocess(response, headers)
                 if inspect.iscoroutinefunction(self.postprocess)
-                else self.postprocess(response, headers)
+                else await asyncio.get_running_loop().run_in_executor(
+                    self.postprocess(response, headers))
             )
             postprocess_ms = get_latency_ms(start, time.time())
 
